@@ -1,2 +1,2 @@
 # ytdl-ui-sample
- A very simple Electron app that uses ytdl-core
+ A very simple Electron app based on ytdl-core

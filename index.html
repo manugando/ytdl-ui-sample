@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src *; style-src 'self' https://stackpath.bootstrapcdn.com https://use.fontawesome.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://use.fontawesome.com">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Darker+Grotesque&display=swap">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="src/app.css">
+
+        <title>Youtube Download UI</title>
+    </head>
+    <body class="bg-dark">
+        <div id="loading-overlay" class="d-none">
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin fa-3x text-danger"></i>
+                <span class="d-block text-center mt-3" id="loading-overlay-message">Recupero info del video...</span>
+            </div>
+        </div>
+        <div id="header" class="bg-danger text-white">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col">
+                        <h1>Youtube Download UI</h1>
+                        <button type="button" class="btn btn-dark" id="button-reload-app"><i class="fas fa-redo"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="content" class="container-fluid py-3">
+            <div class="card">
+                <div class="card-body">
+                    <section id="choose-video">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="choose-video-field-video-url">URL del video</label>
+                                    <input type="text" id="choose-video-field-video-url" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="button" id="choose-video-button-submit-video-url" class="btn btn-danger">OK</button>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="video-detail" class="d-none">
+                        <div class="row">
+                            <div class="col-3">
+                                <img src="#" id="video-detail-thumb" class="img-fluid">
+                            </div>
+                            <div class="col-9">
+                                <h2 id="video-detail-title"></h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <h3 class="mt-3">Formati</h3>
+                                <ul class="list-group" id="video-detail-formats"></ul>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="output-detail" class="d-none">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h3>Output</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="output-detail-path">Nome file</label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="output-detail-name">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="output-detail-force-mp3">Converti in MP3</label>
+                                    <select class="form-control" id="output-detail-force-mp3">
+                                        <option value="0">No</option>
+                                        <option value="1">Sì</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="output-detail-path">Cartella</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="output-detail-path" placeholder="Scegli destinazione">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-danger" type="button" id="output-detail-browse">Sfoglia</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="button" id="output-detail-button-download" class="btn btn-danger mt-3">Download</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <script src="src/app.js"></script>
+    </body>
+</html>
