@@ -69,6 +69,17 @@ function getUserChoiceVideoFormat() {
     return userChoices.videoInfo.formats[userChoices.videoFormatIndex];
 }
 
+/**
+ * @return {String}
+ */
+function getUserChoiceVideoTitle() {
+    if(userChoices.videoInfo.title != null) {
+        return userChoices.videoInfo.title;
+    } else {
+        return 'Video';
+    }
+}
+
 function startDownload() {
     showLoadingOverlay(true, 'Download in corso...');
     let filePath = path.join(userChoices.outputFilePath, userChoices.outputFileName);
@@ -131,7 +142,7 @@ function initSectionVideoDetail() {
 
 function populateSectionVideoDetail() {
     let videoInfo = userChoices.videoInfo;
-    $('#video-detail-title').text(videoInfo.title);
+    $('#video-detail-title').text(getUserChoiceVideoTitle());
     $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
     videoInfo.formats.forEach(format => {
         let item = getSectionVideoDetailFormatsItem(format);
@@ -194,8 +205,7 @@ function initSectionOutputDetail() {
 }
 
 function populateSectionOutputDetail() {
-    let videoTitle = userChoices.videoInfo.title;
-    let cleanTitle = videoTitle.replace(/[^a-zA-Z0-9 ]/g, "");
+    let cleanTitle = getUserChoiceVideoTitle().replace(/[^a-zA-Z0-9 ]/g, '');
     let extension = getUserChoiceVideoFormat().container;
     $('#output-detail-name').val(cleanTitle + '.' + extension);
 }
