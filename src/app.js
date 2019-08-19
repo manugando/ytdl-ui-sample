@@ -88,20 +88,36 @@ function startDownload() {
         ffmpeg(stream)
             .audioBitrate(256)
             .save(filePath)
+            .on('progress', function(progress) {
+                // TODO
+                // console.log(progress);
+            })
             .on('end', function() {
                 onDownloadCompleted();
             });
     } else {
-        stream.on('end', function() {
+        stream
+        .on('progress', function(chunkLength, downloaded, total) {
+            onDownloadProgress(downloaded, total);
+        })
+        .on('end', function() {
             onDownloadCompleted();
         }).pipe(fs.createWriteStream(filePath))
     }
         
 }
 
+function onDownloadProgress(downloaded, total) {
+    let progress = downloaded / total;
+    let percent = (progress * 100).toFixed(0);
+    showLoadingOverlay(true, 'Download in corso: ' + percent + '%');
+    getCurrentWindow().setProgressBar(progress);
+}
+
 function onDownloadCompleted() {
     showLoadingOverlay(false);
-    window.alert('Fatto!');
+    getCurrentWindow().setProgressBar(-1);
+    new Notification('Download terminato!');
 }
 
 /**
