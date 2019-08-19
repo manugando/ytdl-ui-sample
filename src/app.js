@@ -5,28 +5,7 @@ const ytdl = require('ytdl-core');
 const ffmpeg   = require('fluent-ffmpeg');
 const { dialog, getCurrentWindow, shell } = require('electron').remote;
 
-let userChoices = {
-    /**
-     * @type {ytdl.videoInfo}
-     */
-    videoInfo: null,
-    /**
-     * @type {Number}
-     */
-    videoFormatIndex: null,
-    /**
-     * @type {String}
-     */
-    outputFileName: null,
-    /**
-     * @type {String}
-     */
-    outputFilePath: null,
-    /**
-     * @type {boolean}
-     */
-    outputFileForceMp3: null
-}
+const userChoices = require('./user-choices');
 
 $(() => {
     initApp();
@@ -51,46 +30,10 @@ function showSection(sectionId) {
     $('#' + sectionId).removeClass('d-none');
 }
 
-/**
- * @return {boolean}
- */
-function validateUserChoices() {
-    return userChoices.videoInfo != null &&
-        userChoices.videoFormatIndex != null &&
-        userChoices.outputFileName != '' &&
-        userChoices.outputFileForceMp3 != null &&
-        userChoices.outputFilePath != '';
-}
-
-/**
- * @return {ytdl.videoFormat}
- */
-function getUserChoiceVideoFormat() {
-    return userChoices.videoInfo.formats[userChoices.videoFormatIndex];
-}
-
-/**
- * @return {String}
- */
-function getUserChoiceVideoTitle() {
-    try {
-        return userChoices.videoInfo.player_response.videoDetails.title;
-    } catch (error) {
-        return 'Video';
-    }
-}
-
-/**
- * @return {String}
- */
-function getUserChoiceOutputFile() {
-    return path.join(userChoices.outputFilePath, userChoices.outputFileName);
-}
-
 function startDownload() {
     showLoadingOverlay(true, 'Download in corso...');
-    let filePath = getUserChoiceOutputFile();
-    let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: getUserChoiceVideoFormat() });
+    let filePath = userChoices.getOutputFile();
+    let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: userChoices.getVideoFormat() });
     if(userChoices.outputFileForceMp3) {
         ffmpeg(stream)
             .audioBitrate(256)
@@ -126,7 +69,7 @@ function onDownloadCompleted() {
     getCurrentWindow().setProgressBar(-1);
     let notification = new Notification('Download terminato!', { body: userChoices.outputFileName,  });
     notification.onclick = () => {
-        shell.openItem(getUserChoiceOutputFile());
+        shell.openItem(userChoices.getOutputFile());
     }
 }
 
@@ -180,7 +123,7 @@ function initSectionVideoDetail() {
 
 function populateSectionVideoDetail() {
     let videoInfo = userChoices.videoInfo;
-    $('#video-detail-title').text(getUserChoiceVideoTitle());
+    $('#video-detail-title').text(userChoices.getVideoTitle());
     $('#video-detail-author').text(videoInfo.author.name);
     $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
     videoInfo.formats.forEach((format) => {
@@ -221,7 +164,7 @@ function initSectionOutputDetail() {
     $('#output-detail-force-mp3').change(() => {
         let isForceMp3 = $(this).val() == true;
         let nameWithoutExt = path.parse($('#output-detail-name').val()).name;
-        let newName = nameWithoutExt + '.' + (isForceMp3 ? 'mp3' : getUserChoiceVideoFormat().container);
+        let newName = nameWithoutExt + '.' + (isForceMp3 ? 'mp3' : userChoices.getVideoFormat().container);
         $('#output-detail-name').val(newName);
     });
 
@@ -235,7 +178,7 @@ function initSectionOutputDetail() {
         userChoices.outputFileForceMp3 = $('#output-detail-force-mp3').val() == true;
         userChoices.outputFilePath = $('#output-detail-path').val();
 
-        if(validateUserChoices()) {
+        if(userChoices.validate()) {
             startDownload();
         } else {
             window.alert('Mancano dei dati!');
@@ -244,7 +187,7 @@ function initSectionOutputDetail() {
 }
 
 function populateSectionOutputDetail() {
-    let cleanTitle = getUserChoiceVideoTitle().replace(/[^a-zA-Z0-9 ]/g, '');
-    let extension = getUserChoiceVideoFormat().container;
+    let cleanTitle = userChoices.getVideoTitle().replace(/[^a-zA-Z0-9 ]/g, '');
+    let extension = userChoices.getVideoFormat().container;
     $('#output-detail-name').val(cleanTitle + '.' + extension);
 }
