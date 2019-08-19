@@ -15,10 +15,17 @@
         <title>Youtube Download UI</title>
     </head>
     <body class="bg-dark">
-        <div id="loading-overlay" class="d-none">
+        <div id="loading-overlay" class="full-overlay d-none">
             <div class="text-center">
                 <i class="fas fa-spinner fa-spin fa-3x text-danger"></i>
-                <span class="d-block text-center mt-3" id="loading-overlay-message">Recupero info del video...</span>
+                <span class="d-block text-center mt-3" id="loading-overlay-message"></span>
+            </div>
+        </div>
+        <div id="error-overlay" class="full-overlay d-none">
+            <div class="text-center">
+                <i class="fas fa-times fa-3x text-danger"></i>
+                <span class="d-block text-center my-3" id="error-overlay-message"></span>
+                <button type="button" class="btn btn-danger" id="button-retry">Riprova</button>
             </div>
         </div>
         <div id="header" class="bg-danger text-white">

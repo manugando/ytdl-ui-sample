@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const ytdl = require('ytdl-core');
 const ffmpeg   = require('fluent-ffmpeg');
-const { dialog, getCurrentWindow } = require('electron').remote;
+const { dialog, getCurrentWindow, shell } = require('electron').remote;
 
 let userChoices = {
     /**
@@ -38,7 +38,7 @@ $(function() {
 /* Common stuff */
 
 function initApp() {
-    $('#button-reload-app').click(function() {
+    $('#button-reload-app, #button-retry').click(function() {
         getCurrentWindow().reload();
     });
 }
@@ -80,29 +80,36 @@ function getUserChoiceVideoTitle() {
     }
 }
 
+/**
+ * @return {String}
+ */
+function getUserChoiceOutputFile() {
+    return path.join(userChoices.outputFilePath, userChoices.outputFileName);
+}
+
 function startDownload() {
     showLoadingOverlay(true, 'Download in corso...');
-    let filePath = path.join(userChoices.outputFilePath, userChoices.outputFileName);
+    let filePath = getUserChoiceOutputFile();
     let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: getUserChoiceVideoFormat()});
     if(userChoices.outputFileForceMp3) {
         ffmpeg(stream)
             .audioBitrate(256)
             .save(filePath)
-            .on('progress', function(progress) {
-                // TODO
-                // console.log(progress);
-            })
             .on('end', function() {
                 onDownloadCompleted();
             });
     } else {
         stream
-        .on('progress', function(chunkLength, downloaded, total) {
-            onDownloadProgress(downloaded, total);
-        })
-        .on('end', function() {
-            onDownloadCompleted();
-        }).pipe(fs.createWriteStream(filePath))
+            .on('progress', function(chunkLength, downloaded, total) {
+                onDownloadProgress(downloaded, total);
+            })
+            .on('error', function() {
+                showErrorOverlay();
+            })
+            .on('end', function() {
+                onDownloadCompleted();
+            })
+            .pipe(fs.createWriteStream(filePath))
     }
         
 }
@@ -117,7 +124,10 @@ function onDownloadProgress(downloaded, total) {
 function onDownloadCompleted() {
     showLoadingOverlay(false);
     getCurrentWindow().setProgressBar(-1);
-    new Notification('Download terminato!');
+    let notification = new Notification('Download terminato!', { body: userChoices.outputFileName,  });
+    notification.onclick = function() {
+        shell.openItem(getUserChoiceOutputFile());
+    }
 }
 
 /**
@@ -131,18 +141,30 @@ function showLoadingOverlay(show, message = null) {
     }
 }
 
+/**
+ * @param {String} message
+ */
+function showErrorOverlay(message = 'Si è verificato un errore') {
+    $('#error-overlay').removeClass('d-none');
+    $('#error-overlay-message').text(message);
+}
+
 /* Section Choose Video */
 
 function initSectionChooseVideo() {
     $('#choose-video-button-submit-video-url').click(function() {
         let videoUrl = $('#choose-video-field-video-url').val();
         showLoadingOverlay(true, 'Recupero info del video...');
-        ytdl.getInfo(videoUrl).then(function(videoInfo) {
-            userChoices.videoInfo = videoInfo;
-            populateSectionVideoDetail();
-            showSection('video-detail');
-            showLoadingOverlay(false);
-        });
+        ytdl.getInfo(videoUrl)
+            .then(function(videoInfo) {
+                userChoices.videoInfo = videoInfo;
+                populateSectionVideoDetail();
+                showSection('video-detail');
+                showLoadingOverlay(false);
+            })
+            .catch(function(reason) {
+                showErrorOverlay('Formato URL non corretto');
+            });
     });
 }
 
@@ -160,7 +182,7 @@ function populateSectionVideoDetail() {
     let videoInfo = userChoices.videoInfo;
     $('#video-detail-title').text(getUserChoiceVideoTitle());
     $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
-    videoInfo.formats.forEach(format => {
+    videoInfo.formats.forEach(function(format) {
         let item = getSectionVideoDetailFormatsItem(format);
         $('#video-detail-formats').append(item);
     });
