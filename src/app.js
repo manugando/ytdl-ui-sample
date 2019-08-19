@@ -28,7 +28,7 @@ let userChoices = {
     outputFileForceMp3: null
 }
 
-$(function() {
+$(() => {
     initApp();
     initSectionChooseVideo();
     initSectionVideoDetail();
@@ -38,7 +38,7 @@ $(function() {
 /* Common stuff */
 
 function initApp() {
-    $('#button-reload-app, #button-retry').click(function() {
+    $('#button-reload-app, #button-retry').click(() => {
         getCurrentWindow().reload();
     });
 }
@@ -90,23 +90,23 @@ function getUserChoiceOutputFile() {
 function startDownload() {
     showLoadingOverlay(true, 'Download in corso...');
     let filePath = getUserChoiceOutputFile();
-    let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: getUserChoiceVideoFormat()});
+    let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: getUserChoiceVideoFormat() });
     if(userChoices.outputFileForceMp3) {
         ffmpeg(stream)
             .audioBitrate(256)
             .save(filePath)
-            .on('end', function() {
+            .on('end', () => {
                 onDownloadCompleted();
             });
     } else {
         stream
-            .on('progress', function(chunkLength, downloaded, total) {
+            .on('progress', (chunkLength, downloaded, total) => {
                 onDownloadProgress(downloaded, total);
             })
-            .on('error', function() {
+            .on('error', () => {
                 showErrorOverlay();
             })
-            .on('end', function() {
+            .on('end', () => {
                 onDownloadCompleted();
             })
             .pipe(fs.createWriteStream(filePath))
@@ -125,7 +125,7 @@ function onDownloadCompleted() {
     showLoadingOverlay(false);
     getCurrentWindow().setProgressBar(-1);
     let notification = new Notification('Download terminato!', { body: userChoices.outputFileName,  });
-    notification.onclick = function() {
+    notification.onclick = () => {
         shell.openItem(getUserChoiceOutputFile());
     }
 }
@@ -152,17 +152,17 @@ function showErrorOverlay(message = 'Si è verificato un errore') {
 /* Section Choose Video */
 
 function initSectionChooseVideo() {
-    $('#choose-video-button-submit-video-url').click(function() {
+    $('#choose-video-button-submit-video-url').click(() => {
         let videoUrl = $('#choose-video-field-video-url').val();
         showLoadingOverlay(true, 'Recupero info del video...');
         ytdl.getInfo(videoUrl)
-            .then(function(videoInfo) {
+            .then((videoInfo) => {
                 userChoices.videoInfo = videoInfo;
                 populateSectionVideoDetail();
                 showSection('video-detail');
                 showLoadingOverlay(false);
             })
-            .catch(function(reason) {
+            .catch((reason) => {
                 showErrorOverlay('Formato URL non corretto');
             });
     });
@@ -171,8 +171,8 @@ function initSectionChooseVideo() {
 /* Section Video Detail */
 
 function initSectionVideoDetail() {
-    $('#video-detail-formats').on('click', '.list-group-item', function() {
-        userChoices.videoFormatIndex = $(this).index();
+    $('#video-detail-formats').on('click', '.list-group-item', (event) => {
+        userChoices.videoFormatIndex = $(event.currentTarget).index();
         populateSectionOutputDetail();
         showSection('output-detail');
     });
@@ -183,7 +183,7 @@ function populateSectionVideoDetail() {
     $('#video-detail-title').text(getUserChoiceVideoTitle());
     $('#video-detail-author').text(videoInfo.author.name);
     $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
-    videoInfo.formats.forEach(function(format) {
+    videoInfo.formats.forEach((format) => {
         let item = getSectionVideoDetailFormatsItem(format);
         $('#video-detail-formats').append(item);
     });
@@ -218,19 +218,19 @@ function getSectionVideoDetailFormatsItem(videoFormat) {
 /* Section Output Detail */
 
 function initSectionOutputDetail() {
-    $('#output-detail-force-mp3').change(function() {
+    $('#output-detail-force-mp3').change(() => {
         let isForceMp3 = $(this).val() == true;
         let nameWithoutExt = path.parse($('#output-detail-name').val()).name;
         let newName = nameWithoutExt + '.' + (isForceMp3 ? 'mp3' : getUserChoiceVideoFormat().container);
         $('#output-detail-name').val(newName);
     });
 
-    $('#output-detail-browse').click(function() {
+    $('#output-detail-browse').click(() => {
         let outputPath = dialog.showOpenDialog({ properties: ['openDirectory'] });
         $('#output-detail-path').val(outputPath);
     });
 
-    $('#output-detail-button-download').click(function() {
+    $('#output-detail-button-download').click(() => {
         userChoices.outputFileName = $('#output-detail-name').val();
         userChoices.outputFileForceMp3 = $('#output-detail-force-mp3').val() == true;
         userChoices.outputFilePath = $('#output-detail-path').val();
