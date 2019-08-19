@@ -59,6 +59,28 @@ let userChoices = {
     /**
      * @return {String}
      */
+    getVideoThumb: () => {
+        try {
+            return userChoices.videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url;
+        } catch (error) {
+            return '';
+        }
+    },
+
+    /**
+     * @return {String}
+     */
+    getVideoAuthor: () => {
+        try {
+            return userChoices.videoInfo.author.name;
+        } catch (error) {
+            return '';
+        }
+    },
+
+    /**
+     * @return {String}
+     */
     getOutputFile: () => {
         return path.join(userChoices.outputFilePath, userChoices.outputFileName);
     }

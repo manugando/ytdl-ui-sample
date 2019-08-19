@@ -122,11 +122,10 @@ function initSectionVideoDetail() {
 }
 
 function populateSectionVideoDetail() {
-    let videoInfo = userChoices.videoInfo;
     $('#video-detail-title').text(userChoices.getVideoTitle());
-    $('#video-detail-author').text(videoInfo.author.name);
-    $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
-    videoInfo.formats.forEach((format) => {
+    $('#video-detail-author').text(userChoices.getVideoAuthor());
+    $('#video-detail-thumb').attr('src', userChoices.getVideoThumb());
+    userChoices.videoInfo.formats.forEach((format) => {
         let item = getSectionVideoDetailFormatsItem(format);
         $('#video-detail-formats').append(item);
     });
