@@ -73,9 +73,9 @@ function getUserChoiceVideoFormat() {
  * @return {String}
  */
 function getUserChoiceVideoTitle() {
-    if(userChoices.videoInfo.title != null) {
-        return userChoices.videoInfo.title;
-    } else {
+    try {
+        return userChoices.videoInfo.player_response.videoDetails.title;
+    } catch (error) {
         return 'Video';
     }
 }
@@ -181,6 +181,7 @@ function initSectionVideoDetail() {
 function populateSectionVideoDetail() {
     let videoInfo = userChoices.videoInfo;
     $('#video-detail-title').text(getUserChoiceVideoTitle());
+    $('#video-detail-author').text(videoInfo.author.name);
     $('#video-detail-thumb').attr('src', videoInfo.player_response.videoDetails.thumbnail.thumbnails[0].url);
     videoInfo.formats.forEach(function(format) {
         let item = getSectionVideoDetailFormatsItem(format);
