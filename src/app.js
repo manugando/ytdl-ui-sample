@@ -160,8 +160,8 @@ function getSectionVideoDetailFormatsItem(videoFormat) {
 /* Section Output Detail */
 
 function initSectionOutputDetail() {
-    $('#output-detail-force-mp3').change(() => {
-        let isForceMp3 = $(this).val() == true;
+    $('#output-detail-force-mp3').change((event) => {
+        let isForceMp3 = $(event.currentTarget).val() == true;
         let nameWithoutExt = path.parse($('#output-detail-name').val()).name;
         let newName = nameWithoutExt + '.' + (isForceMp3 ? 'mp3' : userChoices.getVideoFormat().container);
         $('#output-detail-name').val(newName);
