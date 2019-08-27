@@ -186,7 +186,9 @@ function initSectionOutputDetail() {
 }
 
 function populateSectionOutputDetail() {
-    let cleanTitle = userChoices.getVideoTitle().replace(/[^a-zA-Z0-9 ]/g, '');
+    let cleanTitle = userChoices.getVideoTitle()
+        .replace(/[^a-zA-Z0-9 ]/g, '') // Removes dangerous characters
+        .replace(/\s\s+/g, ' '); // Removes multiple spaces
     let extension = userChoices.getVideoFormat().container;
     $('#output-detail-name').val(cleanTitle + '.' + extension);
 }

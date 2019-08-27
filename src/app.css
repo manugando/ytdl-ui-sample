@@ -38,6 +38,10 @@
     cursor: pointer;
 }
 
+#video-detail-formats li:hover {
+    background: #eee;
+}
+
 #video-detail-formats li > * {
     margin-right: 7px;
 }
