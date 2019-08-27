@@ -31,7 +31,7 @@ function showSection(sectionId) {
 }
 
 function startDownload() {
-    showLoadingOverlay(true, 'Download in corso...');
+    showLoadingOverlay(true, 'Downloading...');
     let filePath = userChoices.getOutputFile();
     let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: userChoices.getVideoFormat() });
     if(userChoices.outputFileForceMp3) {
@@ -60,14 +60,14 @@ function startDownload() {
 function onDownloadProgress(downloaded, total) {
     let progress = downloaded / total;
     let percent = (progress * 100).toFixed(0);
-    showLoadingOverlay(true, 'Download in corso: ' + percent + '%');
+    showLoadingOverlay(true, 'Download in progress: ' + percent + '%');
     getCurrentWindow().setProgressBar(progress);
 }
 
 function onDownloadCompleted() {
     showLoadingOverlay(false);
     getCurrentWindow().setProgressBar(-1);
-    let notification = new Notification('Download terminato!', { body: userChoices.outputFileName,  });
+    let notification = new Notification('Download finished!', { body: userChoices.outputFileName,  });
     notification.onclick = () => {
         shell.openItem(userChoices.getOutputFile());
     }
@@ -87,7 +87,7 @@ function showLoadingOverlay(show, message = null) {
 /**
  * @param {String} message
  */
-function showErrorOverlay(message = 'Si è verificato un errore') {
+function showErrorOverlay(message = 'An error has occurred') {
     $('#error-overlay').removeClass('d-none');
     $('#error-overlay-message').text(message);
 }
@@ -97,7 +97,7 @@ function showErrorOverlay(message = 'Si è verificato un errore') {
 function initSectionChooseVideo() {
     $('#choose-video-button-submit-video-url').click(() => {
         let videoUrl = $('#choose-video-field-video-url').val();
-        showLoadingOverlay(true, 'Recupero info del video...');
+        showLoadingOverlay(true, 'Retrieving video info...');
         ytdl.getInfo(videoUrl)
             .then((videoInfo) => {
                 userChoices.videoInfo = videoInfo;
@@ -106,7 +106,7 @@ function initSectionChooseVideo() {
                 showLoadingOverlay(false);
             })
             .catch((reason) => {
-                showErrorOverlay('Formato URL non corretto');
+                showErrorOverlay('Wrong URL format');
             });
     });
 }
@@ -180,7 +180,7 @@ function initSectionOutputDetail() {
         if(userChoices.validate()) {
             startDownload();
         } else {
-            window.alert('Mancano dei dati!');
+            window.alert('Some info are missing!');
         }
     });
 }
