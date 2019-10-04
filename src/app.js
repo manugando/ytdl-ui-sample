@@ -55,6 +55,9 @@ function convertToMp3() {
     ffmpeg(userChoices.getOutputFile())
         .audioBitrate(320)
         .save(userChoices.getOutputFileMp3())
+        .on('error', () => {
+            showErrorOverlay();
+        })
         .on('end', () => {
             fs.unlinkSync(userChoices.getOutputFile());
             onDownloadCompleted();
