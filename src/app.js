@@ -1,6 +1,5 @@
 const $ = require('jquery');
 const fs = require('fs');
-const path = require('path');
 const ytdl = require('ytdl-core');
 const ffmpeg   = require('fluent-ffmpeg');
 const { dialog, getCurrentWindow, shell } = require('electron').remote;
@@ -53,7 +52,8 @@ function startDownload() {
 
 function convertToMp3() {
     ffmpeg(userChoices.getOutputFile())
-        .audioBitrate(320)
+        .audioCodec('libmp3lame')
+        .audioQuality(0) // https://trac.ffmpeg.org/wiki/Encode/MP3
         .save(userChoices.getOutputFileMp3())
         .on('error', () => {
             showErrorOverlay();
