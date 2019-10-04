@@ -83,6 +83,15 @@ let userChoices = {
      */
     getOutputFile: () => {
         return path.join(userChoices.outputFilePath, userChoices.outputFileName);
+    },
+
+    /**
+     * @return {String}
+     */
+    getOutputFileMp3: () => {
+        let fileNameWithoutExt = path.parse(userChoices.outputFileName).name;
+        var fileNameMp3 = fileNameWithoutExt + '.mp3';
+        return path.join(userChoices.outputFilePath, fileNameMp3);
     }
 }
 

@@ -32,29 +32,33 @@ function showSection(sectionId) {
 
 function startDownload() {
     showLoadingOverlay(true, 'Downloading...');
-    let filePath = userChoices.getOutputFile();
     let stream = ytdl.downloadFromInfo(userChoices.videoInfo, { format: userChoices.getVideoFormat() });
-    if(userChoices.outputFileForceMp3) {
-        ffmpeg(stream)
-            .audioBitrate(256)
-            .save(filePath)
-            .on('end', () => {
+    stream
+        .on('progress', (chunkLength, downloaded, total) => {
+            onDownloadProgress(downloaded, total);
+        })
+        .on('error', () => {
+            showErrorOverlay();
+        })
+        .on('end', () => {
+            if(userChoices.outputFileForceMp3) {
+                showLoadingOverlay(true, 'Converting to mp3...');
+                convertToMp3();
+            } else {
                 onDownloadCompleted();
-            });
-    } else {
-        stream
-            .on('progress', (chunkLength, downloaded, total) => {
-                onDownloadProgress(downloaded, total);
-            })
-            .on('error', () => {
-                showErrorOverlay();
-            })
-            .on('end', () => {
-                onDownloadCompleted();
-            })
-            .pipe(fs.createWriteStream(filePath))
-    }
-        
+            }
+        })
+        .pipe(fs.createWriteStream(userChoices.getOutputFile()))
+}
+
+function convertToMp3() {
+    ffmpeg(userChoices.getOutputFile())
+        .audioBitrate(320)
+        .save(userChoices.getOutputFileMp3())
+        .on('end', () => {
+            fs.unlinkSync(userChoices.getOutputFile());
+            onDownloadCompleted();
+        });
 }
 
 function onDownloadProgress(downloaded, total) {
@@ -67,9 +71,9 @@ function onDownloadProgress(downloaded, total) {
 function onDownloadCompleted() {
     showLoadingOverlay(false);
     getCurrentWindow().setProgressBar(-1);
-    let notification = new Notification('Download finished!', { body: userChoices.outputFileName,  });
+    let notification = new Notification('Download finished!', { body: userChoices.getVideoTitle() });
     notification.onclick = () => {
-        shell.openItem(userChoices.getOutputFile());
+        shell.openItem(userChoices.outputFileForceMp3 ? userChoices.getOutputFileMp3() : userChoices.getOutputFile());
     }
 }
 
@@ -160,13 +164,6 @@ function getSectionVideoDetailFormatsItem(videoFormat) {
 /* Section Output Detail */
 
 function initSectionOutputDetail() {
-    $('#output-detail-force-mp3').change((event) => {
-        let isForceMp3 = $(event.currentTarget).val() == true;
-        let nameWithoutExt = path.parse($('#output-detail-name').val()).name;
-        let newName = nameWithoutExt + '.' + (isForceMp3 ? 'mp3' : userChoices.getVideoFormat().container);
-        $('#output-detail-name').val(newName);
-    });
-
     $('#output-detail-browse').click(() => {
         let outputPath = dialog.showOpenDialog({ properties: ['openDirectory'] });
         $('#output-detail-path').val(outputPath);
