@@ -81,17 +81,16 @@ let userChoices = {
     /**
      * @return {String}
      */
-    getOutputFile: () => {
-        return path.join(userChoices.outputFilePath, userChoices.outputFileName);
+    getOutputFileOriginal: () => {
+        let extension = userChoices.getVideoFormat().container;
+        return path.join(userChoices.outputFilePath, userChoices.outputFileName) + '.' + extension;
     },
 
     /**
      * @return {String}
      */
     getOutputFileMp3: () => {
-        let fileNameWithoutExt = path.parse(userChoices.outputFileName).name;
-        var fileNameMp3 = fileNameWithoutExt + '.mp3';
-        return path.join(userChoices.outputFilePath, fileNameMp3);
+        return path.join(userChoices.outputFilePath, userChoices.outputFileName) + '.mp3';
     }
 }
 

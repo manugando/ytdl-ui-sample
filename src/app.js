@@ -47,11 +47,11 @@ function startDownload() {
                 onDownloadCompleted();
             }
         })
-        .pipe(fs.createWriteStream(userChoices.getOutputFile()))
+        .pipe(fs.createWriteStream(userChoices.getOutputFileOriginal()))
 }
 
 function convertToMp3() {
-    ffmpeg(userChoices.getOutputFile())
+    ffmpeg(userChoices.getOutputFileOriginal())
         .audioCodec('libmp3lame')
         .audioQuality(0) // https://trac.ffmpeg.org/wiki/Encode/MP3
         .save(userChoices.getOutputFileMp3())
@@ -59,7 +59,7 @@ function convertToMp3() {
             showErrorOverlay();
         })
         .on('end', () => {
-            fs.unlinkSync(userChoices.getOutputFile());
+            fs.unlinkSync(userChoices.getOutputFileOriginal());
             onDownloadCompleted();
         });
 }
@@ -74,9 +74,9 @@ function onDownloadProgress(downloaded, total) {
 function onDownloadCompleted() {
     showLoadingOverlay(false);
     getCurrentWindow().setProgressBar(-1);
-    let notification = new Notification('Download finished!', { body: userChoices.getVideoTitle() });
+    let notification = new Notification('Download finished!', { body: userChoices.outputFileName });
     notification.onclick = () => {
-        shell.openItem(userChoices.outputFileForceMp3 ? userChoices.getOutputFileMp3() : userChoices.getOutputFile());
+        shell.openItem(userChoices.outputFileForceMp3 ? userChoices.getOutputFileMp3() : userChoices.getOutputFileOriginal());
     }
 }
 
@@ -178,6 +178,7 @@ function initSectionOutputDetail() {
         userChoices.outputFilePath = $('#output-detail-path').val();
 
         if(userChoices.validate()) {
+            localStorage.setItem('output-file-path', userChoices.outputFilePath);
             startDownload();
         } else {
             window.alert('Some info are missing!');
@@ -189,6 +190,6 @@ function populateSectionOutputDetail() {
     let cleanTitle = userChoices.getVideoTitle()
         .replace(/[^a-zA-Z0-9 ]/g, '') // Removes dangerous characters
         .replace(/\s\s+/g, ' '); // Removes multiple spaces
-    let extension = userChoices.getVideoFormat().container;
-    $('#output-detail-name').val(cleanTitle + '.' + extension);
+    $('#output-detail-name').val(cleanTitle);
+    $('#output-detail-path').val(localStorage.getItem('output-file-path'));
 }
