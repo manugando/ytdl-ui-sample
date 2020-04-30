@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "fluent-ffmpeg": "^2.1.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "ytdl-core": "^0.29.3"
   }
 }
