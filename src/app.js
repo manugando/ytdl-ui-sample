@@ -54,6 +54,10 @@ function convertToMp3() {
     ffmpeg(userChoices.getOutputFileOriginal())
         .audioCodec('libmp3lame')
         .audioQuality(0) // https://trac.ffmpeg.org/wiki/Encode/MP3
+        .outputOptions([
+            // '-write_xing 0', 
+            '-id3v2_version 0'
+        ])
         .save(userChoices.getOutputFileMp3())
         .on('error', () => {
             showErrorOverlay();
@@ -167,9 +171,12 @@ function getSectionVideoDetailFormatsItem(videoFormat) {
 /* Section Output Detail */
 
 function initSectionOutputDetail() {
-    $('#output-detail-browse').click(() => {
-        let outputPath = dialog.showOpenDialog({ properties: ['openDirectory'] });
-        $('#output-detail-path').val(outputPath);
+    $('#output-detail-browse').click(async () => {
+        dialog.showOpenDialog({ properties: ['openDirectory'] }).then((dialogResponse) => {
+            if(!dialogResponse.canceled && dialogResponse.filePaths.length > 0) {
+                $('#output-detail-path').val(dialogResponse.filePaths[0]);
+            }
+        })
     });
 
     $('#output-detail-button-download').click(() => {
